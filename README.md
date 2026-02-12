@@ -1,4 +1,4 @@
--- LocalScript (đặt trong StarterPlayerScripts hoặc StarterGui)
+-- LocalScript (StarterPlayerScripts / StarterGui)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -6,7 +6,7 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local camera = workspace.CurrentCamera
 
--- ===== GUI =====
+-- GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "LockOnGui"
 screenGui.ResetOnSpawn = false
@@ -20,71 +20,56 @@ button.BackgroundColor3 = Color3.fromRGB(40,40,40)
 button.TextColor3 = Color3.new(1,1,1)
 button.Parent = screenGui
 
--- ===== LOCK SYSTEM =====
+-- System
 local locking = false
 local target = nil
 
--- Tìm player gần nhất
 local function getNearestPlayer()
-local character = player.Character
-if not character or not character:FindFirstChild("HumanoidRootPart") then
-return nil
-end
+	local character = player.Character
+	if not character or not character:FindFirstChild("HumanoidRootPart") then
+		return nil
+	end
 
-```
-local myRoot = character.HumanoidRootPart
-local nearest = nil
-local shortestDistance = math.huge
+	local myRoot = character.HumanoidRootPart
+	local nearest = nil
+	local shortestDistance = math.huge
 
-for _, plr in pairs(Players:GetPlayers()) do
-	if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-		
-		local root = plr.Character.HumanoidRootPart
-		local distance = (root.Position - myRoot.Position).Magnitude
-		
-		if distance < shortestDistance then
-			shortestDistance = distance
-			nearest = plr
+	for _, plr in pairs(Players:GetPlayers()) do
+		if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			local root = plr.Character.HumanoidRootPart
+			local distance = (root.Position - myRoot.Position).Magnitude
+
+			if distance < shortestDistance then
+				shortestDistance = distance
+				nearest = plr
+			end
 		end
 	end
+
+	return nearest
 end
 
-return nearest
-```
-
-end
-
--- Toggle nút
 button.MouseButton1Click:Connect(function()
-locking = not locking
+	locking = not locking
 
-```
-if locking then
-	target = getNearestPlayer()
-	button.Text = "Lock: ON"
-else
-	target = nil
-	button.Text = "Lock: OFF"
-end
-```
-
+	if locking then
+		target = getNearestPlayer()
+		button.Text = "Lock: ON"
+	else
+		target = nil
+		button.Text = "Lock: OFF"
+	end
 end)
 
--- Camera aim vào body
 RunService.RenderStepped:Connect(function()
-if locking and target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+	if locking and target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+		local targetRoot = target.Character.HumanoidRootPart
 
-```
-	local targetRoot = target.Character.HumanoidRootPart
-	
-	camera.CFrame = CFrame.new(
-		camera.CFrame.Position,
-		targetRoot.Position
-	)
-	
-else
-	target = nil
-end
-```
-
+		camera.CFrame = CFrame.new(
+			camera.CFrame.Position,
+			targetRoot.Position
+		)
+	else
+		target = nil
+	end
 end)
